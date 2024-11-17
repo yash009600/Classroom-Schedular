@@ -22,5 +22,5 @@ A web-based scheduling system that optimizes classroom allocation and prevents s
 
 ## 👥 Contact
 - 📧 Email: yashnimkar09@gmail.com
-- 🔗 LinkedIn: [(http://www.linkedin.com/in/yash-nimkar)]
-- 💻 GitHub: [https://github.com/yash009600]
+- 🔗 LinkedIn: http://www.linkedin.com/in/yash-nimkar
+- 💻 GitHub: https://github.com/yash009600
