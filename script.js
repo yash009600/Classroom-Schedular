@@ -1,89 +1,158 @@
-showNotes();
-const title = document.querySelector("#title");
-const textArea = document.querySelector("#note-text");
-const button = document.querySelector(".note-btn");
-button.addEventListener("click", function (e) {
-    let notes = localStorage.getItem("notes");
-    if (notes == null) {
-        notesObj = [];
-    } else {
-        notesObj = JSON.parse(notes);
-    }
+const teachers = [
+    "Mrs. Smith", "Mr. Johnson", "Ms. Davis", "Dr. Wilson", "Mrs. Brown",
+    "Mr. Taylor", "Ms. Anderson", "Dr. Thomas", "Mrs. Martinez", "Mr. Garcia",
+    "Dr. Lee", "Ms. White", "Mr. Harris", "Mrs. Clark", "Ms. Lewis",
+    "Mr. Young", "Dr. King", "Mrs. Wright", "Mr. Lopez", "Ms. Hall",
+    "Dr. Green", "Mrs. Adams", "Mr. Baker", "Ms. Nelson", "Dr. Carter"
+];
 
-    let myObj = {
-        title: title.value,
-        textArea: textArea.value
-    }
+const classrooms = [
+    "Room 1", "Room 2", "Room 3", "Room 4", "Room 5",
+    "Lab A", "Lab B", "Lab C", "Library", "Auditorium",
+    "Gymnasium"
+];
 
+let scheduledClasses = [];
 
+window.onload = function() {
+    initializeSelects();
+    setMinDate();
+    loadScheduleFromStorage();
+};
 
+function initializeSelects() {
+    const teacherSelect = document.getElementById('teacher');
+    const classroomSelect = document.getElementById('classroom');
 
-
-    notesObj.push(myObj);
-    localStorage.setItem("notes", JSON.stringify(notesObj));
-    textArea.value = '';
-    title.value = '';
-    showNotes();
-});
-
-function showNotes() {
-
-    let notes = localStorage.getItem("notes");
-    if (notes == null) {
-        notesObj = [];
-    } else {
-        notesObj = JSON.parse(notes);
-    }
-
-    let html = '';
-    notesObj.forEach(function (element, index) {
-        html += `
-        <div>
-        <div class="card">
-            <h2>${element.textArea} </h2>
-            <p>${element.title}</p>
-            <button onClick="deleteNote(this.id)" id="${index}" class="deleteBtn">Delete Note</button>
-        </div>
-        </div>`;
+    teachers.forEach(teacher => {
+        const option = new Option(teacher, teacher);
+        teacherSelect.add(option);
     });
 
-    let insertNotes = document.getElementById("notes");
-    if (notesObj.length == 0) {
-
-        insertNotes.innerHTML = `Nothing to show! Please click on "Schedule Batch" button to add a new class.`
-        insertNotes.style.color = "gray";
-        insertNotes.style.paddingTop = "10px";
-        insertNotes.style.fontSize = "15px";
-    } else {
-        insertNotes.innerHTML = html;
-    }
+    classrooms.forEach(classroom => {
+        const option = new Option(classroom, classroom);
+        classroomSelect.add(option);
+    });
 }
 
-
-function deleteNote(index) {
-    let notes = localStorage.getItem("notes");
-    if (notes == null) {
-        notesObj = [];
-    } else {
-        notesObj = JSON.parse(notes);
-    }
-    notesObj.splice(index, 1);
-    localStorage.setItem("notes", JSON.stringify(notesObj));
-    showNotes();
+function setMinDate() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').min = today;
 }
 
+function checkCollision(newClass) {
+    return scheduledClasses.some(existingClass => {
+        if (existingClass.date === newClass.date && 
+            existingClass.classroom === newClass.classroom) {
+            
+            const newStart = new Date(`2000-01-01T${newClass.startTime}`);
+            const newEnd = new Date(`2000-01-01T${newClass.endTime}`);
+            const existingStart = new Date(`2000-01-01T${existingClass.startTime}`);
+            const existingEnd = new Date(`2000-01-01T${existingClass.endTime}`);
 
-let searchTxt = document.getElementById("searchTxt");
-searchTxt.addEventListener("input", function () {
-    let inputVal = searchTxt.value;
-    console.log("input event fired", inputVal);
-    let cards = document.getElementsByClassName("card");
-    Array.from(cards).forEach(function (element) {
-        let cardTxt = element.getElementsByTagName('h2')[0].innerHTML;
-        if (cardTxt.includes(inputVal)) {
-            element.style.display = "block";
-        } else {
-            element.style.display = "none";
+            return !(newEnd <= existingStart || newStart >= existingEnd);
         }
-    })
-})
+        return false;
+    });
+}
+
+function scheduleClass() {
+    const teacher = document.getElementById('teacher').value;
+    const classroom = document.getElementById('classroom').value;
+    const date = document.getElementById('date').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const messageDiv = document.getElementById('message');
+
+    messageDiv.textContent = '';
+    messageDiv.className = '';
+
+    if (!validateInputs(teacher, classroom, date, startTime, endTime)) {
+        return;
+    }
+
+    const newClass = { teacher, classroom, date, startTime, endTime };
+
+    if (checkCollision(newClass)) {
+        showMessage('error', 'Scheduling conflict detected! Please choose different time or classroom');
+        return;
+    }
+
+    scheduledClasses.push(newClass);
+    saveScheduleToStorage();
+    updateScheduleDisplay();
+
+    showMessage('success', 'Class scheduled successfully!');
+    resetForm();
+}
+
+function validateInputs(teacher, classroom, date, startTime, endTime) {
+    if (!teacher || !classroom || !date || !startTime || !endTime) {
+        showMessage('error', 'Please fill in all fields');
+        return false;
+    }
+
+    if (new Date(`2000-01-01T${startTime}`) >= new Date(`2000-01-01T${endTime}`)) {
+        showMessage('error', 'End time must be after start time');
+        return false;
+    }
+
+    return true;
+}
+
+function showMessage(type, text) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = text;
+    messageDiv.className = type;
+}
+
+function resetForm() {
+    document.getElementById('teacher').value = '';
+    document.getElementById('classroom').value = '';
+    document.getElementById('date').value = '';
+    document.getElementById('startTime').value = '';
+    document.getElementById('endTime').value = '';
+}
+
+function updateScheduleDisplay() {
+    const tbody = document.getElementById('scheduleBody');
+    tbody.innerHTML = '';
+
+    scheduledClasses.sort((a, b) => {
+        const dateCompare = a.date.localeCompare(b.date);
+        if (dateCompare !== 0) return dateCompare;
+        return a.startTime.localeCompare(b.startTime);
+    });
+
+    scheduledClasses.forEach(cls => {
+        const row = tbody.insertRow();
+        row.insertCell().textContent = cls.teacher;
+        row.insertCell().textContent = cls.classroom;
+        row.insertCell().textContent = formatDate(cls.date);
+        row.insertCell().textContent = formatTime(cls.startTime);
+        row.insertCell().textContent = formatTime(cls.endTime);
+    });
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString();
+}
+
+function formatTime(time) {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function saveScheduleToStorage() {
+    localStorage.setItem('scheduledClasses', JSON.stringify(scheduledClasses));
+}
+
+function loadScheduleFromStorage() {
+    const saved = localStorage.getItem('scheduledClasses');
+    if (saved) {
+        scheduledClasses = JSON.parse(saved);
+        updateScheduleDisplay();
+    }
+}
