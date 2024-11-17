@@ -1,52 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom Scheduler</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <nav class="navbar">
-        <div class="left">
-            <div id="logo">
-                <h1>Classroom scheduler.</h1>
+    <div class="container">
+        <h1>Classroom Scheduler</h1>
+        
+        <div class="scheduling-form">
+            <div class="form-group">
+                <label for="teacher">Teacher:</label>
+                <select id="teacher">
+                    <option value="">Select Teacher</option>
+                </select>
             </div>
-            <div>
-                <ul>
-                    <li><a href="#">View your batches</a></li>
-                </ul>
+            
+            <div class="form-group">
+                <label for="classroom">Classroom:</label>
+                <select id="classroom">
+                    <option value="">Select Classroom</option>
+                </select>
             </div>
+            
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date">
+            </div>
+            
+            <div class="form-group">
+                <label for="startTime">Start Time:</label>
+                <input type="time" id="startTime">
+            </div>
+            
+            <div class="form-group">
+                <label for="endTime">End Time:</label>
+                <input type="time" id="endTime">
+            </div>
+            
+            <button onclick="scheduleClass()">Schedule Class</button>
+            <div id="message"></div>
         </div>
-        <div class="searchBox">
-            <input type="search" name="searchBar" placeholder="Search" id="searchTxt" />
-            <button class="btn">Search Teacher</button>
+
+        <div class="schedule-display">
+            <h2>Current Schedule</h2>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Classroom</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                </tbody>
+            </table>
         </div>
-    </nav>
-
-    <div class="wrapper">
-        <h1 class="heading">Schedule your batch.</h1>
-        <label for="addingNote" class="addingNote">Add Batch</label> <br />
-        <input name="textarea" id="title" cols="100" rows="2" placeholder="Enter batch timing"></input>
-        <br />
-        <label for="addingNote" class="addingNote">Add a Teacher</label> <br />
-        <input name="textarea" id="note-text" cols="100" rows="6" placeholder="Enter teacher's name"></input>
-        <br />
-        <button class="note-btn">Schedule Batch</button>
-
-        <hr class="margin-top hr" />
-        <h1 class="class">Your Classes</h1>
-
-        <hr class="hr" />
-        <div class="showNotes" id="notes"></div>
     </div>
 
     <script src="script.js"></script>
 </body>
-
 </html>
