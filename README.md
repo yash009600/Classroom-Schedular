@@ -13,15 +13,11 @@ A web-based scheduling system that optimizes classroom allocation and prevents s
 
 ## 🛠️ Built With
 ```javascript
-{
   "frontend": {
     "HTML5": "Structure",
     "CSS3": "Styling & Animations",
     "JavaScript": "ES6+ Features"
-  },
-  "storage": "LocalStorage API",
-  "deployment": "GitHub Pages"
-}
+  }
 ```
 
 ## 👥 Contact
